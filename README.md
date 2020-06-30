@@ -7,6 +7,7 @@ dependencies necessary to...
 * run on the CPU with [Accelerate LLVM Native][accelerate-llvm-native]
 * run on the GPU with [CUDA][accelerate-llvm-ptx]
 
+[accelerate]: https://github.com/AccelerateHS/accelerate
 [accelerate-llvm-native]: https://github.com/AccelerateHS/accelerate-llvm/tree/master/accelerate-llvm-native
 [accelerate-llvm-ptx]: https://github.com/AccelerateHS/accelerate-llvm/tree/master/accelerate-llvm-ptx
 
