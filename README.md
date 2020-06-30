@@ -7,8 +7,8 @@ dependencies necessary to...
 * run on the CPU with [Accelerate LLVM Native][accelerate-llvm-native]
 * run on the GPU with [CUDA][accelerate-llvm-ptx]
 
-[accelerate-llvm-native](https://github.com/AccelerateHS/accelerate-llvm/tree/master/accelerate-llvm-native)
-[accelerate-llvm-ptx](https://github.com/AccelerateHS/accelerate-llvm/tree/master/accelerate-llvm-ptx)
+[accelerate-llvm-native]: https://github.com/AccelerateHS/accelerate-llvm/tree/master/accelerate-llvm-native
+[accelerate-llvm-ptx]: https://github.com/AccelerateHS/accelerate-llvm/tree/master/accelerate-llvm-ptx
 
 `Main.hs` shows how to run the `dotp` example from `Data.Array.Accelerate` on
 the CPU and GPU.
