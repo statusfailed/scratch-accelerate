@@ -1,38 +1,45 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE GADTs #-}
 module Main where
 
-import Prelude hiding (Num, zipWith)
-import Data.Array.Accelerate
-import qualified Data.Array.Accelerate.LLVM.Native as LLVM
+import Prelude hiding (Num, zipWith, Eq, (==), (!!))
+import qualified Prelude as P
+import Data.Array.Accelerate as A hiding ((++))
+import qualified Data.Array.Accelerate.LLVM.Native as Native
 import qualified Data.Array.Accelerate.LLVM.PTX as PTX
 
--- | Run the dot product example code on the CPU and GPU.
-main :: IO ()
+-- TODO: put this code on a branch, publish to github, and link as a testcase from
+-- the GitHub issue
+
+mat :: Acc (Matrix Int)
+mat = use $ fromList (Z :. 4 :. 3) [1..]
+
+s :: Acc (Scalar Int)
+s = A.unit (A.constant 3)
+
+testCase :: (forall a . Arrays a => Acc a -> a) -> Acc (Scalar Int) -> Acc (Matrix Int) -> IO ()
+testCase run ix m = do
+  putStrLn "given a matrix m ="
+  print (run m)
+  putStrLn $ "\n... and an index ix = " ++ show (run ix)
+  let sliced = A.slice mat . lift $ Any :. the s :. All
+  putStrLn $ "\nthe row at index " ++ show (run ix) ++ " is:\n" ++ show (run sliced)
+
 main = do
-  putStrLn "Make a vector"
-  let v = fromList (Z :. 10) [0..] :: Vector Int
-  print v
-  putStrLn "-------------------------------"
-  
-  putStrLn "dot product program"
-  let prog = dotp v v
-  print prog
-  putStrLn "-------------------------------"
+  putStrLn "==============================="
+  putStrLn "Native backend...\n"
+  testCase Native.run s mat
+  putStrLn "==============================="
 
-  putStrLn "running on CPU..."
-  print (LLVM.run prog)
-  putStrLn "-------------------------------"
+  putStrLn "\n\n\n"
 
-  putStrLn "running on GPU (CUDA)..."
-  print (PTX.run prog)
-  return ()
-
--- | This is the example Accelerate program as provided in the documentation of
--- @Data.Array.Accelerate@
-dotp :: Num a => Vector a -> Vector a -> Acc (Scalar a)
-dotp xs ys =
-  let
-      xs' = use xs
-      ys' = use ys
-  in
-  fold (+) 0 ( zipWith (*) xs' ys' )
+  putStrLn "==============================="
+  putStrLn "PTX backend...\n"
+  testCase PTX.run s mat
+  putStrLn "==============================="
